@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Certification Mastery</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --bg-color: #f8f9fa;
+            --text-main: #202124;
+            --text-secondary: #5f6368;
+            --correct: #1e8e3e;
+            --correct-bg: #e6f4ea;
+            --wrong: #d93025;
+            --wrong-bg: #fce8e6;
+            --border: #dadce0;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: var(--primary);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 1px 3px rgba(60,64,67,0.3), 0 4px 8px rgba(60,64,67,0.15); 
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .question { 
+            font-size: 1.4em; 
+            line-height: 1.5;
+            margin-bottom: 30px; 
+            font-weight: 500;
+        }
+
+        .options-grid { 
+            display: grid; 
+            gap: 12px; 
+        }
+
+        button.opt-btn { 
+            background: #fff; 
+            color: var(--text-main); 
+            border: 1px solid var(--border); 
+            padding: 18px 24px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            text-align: left; 
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        button.opt-btn:hover:not([disabled]) { 
+            background-color: #f1f3f4;
+            border-color: var(--primary);
+        }
+
+        /* Color States */
+        button.correct { 
+            background-color: var(--correct-bg) !important; 
+            border-color: var(--correct) !important; 
+            color: var(--correct) !important; 
+            font-weight: 600;
+        }
+
+        button.wrong { 
+            background-color: var(--wrong-bg) !important; 
+            border-color: var(--wrong) !important; 
+            color: var(--wrong) !important; 
+        }
+
+        .footer-controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            min-height: 50px;
+        }
+
+        #next-btn { 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px 30px; 
+            border-radius: 4px; 
+            font-size: 16px; 
+            font-weight: 600;
+            cursor: pointer; 
+            display: none; 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        #next-btn:hover { background: var(--primary-dark); }
+
+        .score-display {
+            background: #e8f0fe;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="header">
+        <h1>Assessment Mastery Tool</h1>
+    </div>
+
+    <div class="card">
+        <div class="status-bar">
+            <span id="progress-text"></span>
+            <span class="score-display" id="score-text">Score: 0</span>
+        </div>
+
+        <div class="question" id="question-text"></div>
+        <div class="options-grid" id="options-list"></div>
+
+        <div class="footer-controls">
+            <button id="next-btn" onclick="nextQuestion()">Continue ➜</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Full dataset of 45 questions from the study document
+    const quizData = [
+        { q: "What is the formal definition of a web page?", a: 2, options: ["A physical folder for printing", "An offline data entry application", "A document suitable for the WWW accessed via browser", "A private internal employee network"] },
+        { q: "What is considered the first step in planning a website?", a: 0, options: ["Defining the purpose or goal", "Writing the source code", "Choosing the color scheme", "Purchasing the domain name"] },
+        { q: "Why must a designer know the client during the process?", a: 1, options: ["To determine the lowest budget", "To align design with brand, audience, and objectives", "To inventory the client's hardware", "To assist with office relocation"] },
+        { q: "How do spelling and grammar errors affect a website?", a: 2, options: ["They improve mobile load times", "They increase search rankings", "They damage credibility and trust", "They have no impact"] },
+        { q: "Which is an example of a professional government portal?", a: 1, options: ["Apple.com", "Gov.uk", "Amazon.com", "Facebook.com"] },
+        { q: "In evaluation, 'Currency' refers to:", a: 3, options: ["The financial cost of the site", "The types of payments accepted", "The speed of the site's server", "Whether the information is up to date"] },
+        { q: "In evaluation, 'Authority' refers to:", a: 2, options: ["The number of high-res images", "The legal power of the site", "The author or organization behind the content", "The thickness of the site's borders"] },
+        { q: "What is a significant advantage of using web pages?", a: 3, options: ["They are immune to security risks", "They can be accessed without internet", "They guarantee 100% accuracy", "They offer global reach and low distribution costs"] },
+        { q: "What is a primary disadvantage of the World Wide Web?", a: 0, options: ["Security risks such as identity theft", "Constant accessibility", "Ease of information exchange", "Educational accessibility"] },
+        { q: "The main role of an e-commerce product page is:", a: 3, options: ["To hide competitor prices", "To block product reviews", "To replace physical storefronts", "To provide 24/7 access for purchasing and info"] },
+        { q: "Data communication is defined as:", a: 3, options: ["Permanent data storage", "Commercial exchange of goods", "Printing hard copy documents", "Exchange of data between nodes via medium"] },
+        { q: "In a communication system, the 'Sender' is:", a: 3, options: ["The physical wire", "The set of rules (protocol)", "The data recipient", "The device that generates and sends the message"] },
+        { q: "Which serves as the physical path for a message?", a: 2, options: ["The Protocol", "The Receiver", "The Medium", "The Modem"] },
+        { q: "Transmission mode in only ONE direction is:", a: 2, options: ["Half-Duplex", "Full-Duplex", "Simplex", "Asynchronous"] },
+        { q: "A walkie-talkie is an example of which mode?", a: 0, options: ["Half-Duplex", "Simplex", "Full-Duplex", "Multiplex"] },
+        { q: "Which mode supports simultaneous two-way communication?", a: 2, options: ["Simplex", "Half-Duplex", "Full-Duplex", "Serial"] },
+        { q: "In 'Modem', what does 'MO' represent?", a: 1, options: ["Mode", "Modulation", "Mobile", "Monitor"] },
+        { q: "Converting analog signals back to digital data is:", a: 1, options: ["Modulation", "Demodulation", "Encryption", "Compression"] },
+        { q: "Why are modems necessary for phone lines?", a: 2, options: ["Phone lines are digital only", "To increase processing speed", "To convert digital signals to analog for transmission", "To prevent line noise"] },
+        { q: "In data communication, what is a 'Node'?", a: 1, options: ["A software bug", "A physical connection point or device", "A measure of bandwidth", "A fiber optic connector"] },
+        { q: "What is the primary function of the CPU?", a: 1, options: ["To display high-quality graphics", "To fetch, decode, and execute instructions", "To provide permanent data storage", "To scan physical documents"] },
+        { q: "Which of the following is an input device?", a: 3, options: ["Monitor", "Printer", "Speaker", "Keyboard"] },
+        { q: "Which device is used to produce a 'hard copy'?", a: 2, options: ["Scanner", "Mouse", "Printer", "Microphone"] },
+        { q: "What defines application software?", a: 2, options: ["Internal computer circuitry", "The cooling hardware", "Programs designed for specific user tasks", "The power supply unit"] },
+        { q: "Which is considered general-purpose software?", a: 2, options: ["Medical diagnostic software", "Air traffic control system", "Microsoft Word", "Banking ledger software"] },
+        { q: "Specialized software is characterized by:", a: 3, options: ["Being applicable to any task", "Requiring no CPU resources", "Being universally free", "Being built for a specific industry or task"] },
+        { q: "What is a business benefit of a Server?", a: 2, options: ["It improves office aesthetics", "It replaces individual CPUs", "It centralizes data for collaboration", "It prints high-speed documents"] },
+        { q: "How does a scanner benefit a business?", a: 3, options: ["It speeds up document printing", "It executes complex algorithms", "It replaces the internet", "It digitizes records to save physical space"] },
+        { q: "The CPU is commonly known as the:", a: 1, options: ["Heart", "Brain", "Lungs", "Backbone"] },
+        { q: "Which of these is an output device?", a: 0, options: ["Touchscreen (display)", "Scanner", "Microphone", "Webcam"] },
+        { q: "What is the 'Internet'?", a: 2, options: ["A single private network", "A web development suite", "A global network of networks", "A type of fiber optic cable"] },
+        { q: "How does an Extranet differ from an Intranet?", a: 2, options: ["Extranet is slower", "Intranet is accessible by the public", "Extranet allows limited access to authorized outsiders", "There is no functional difference"] },
+        { q: "What is an 'Intranet'?", a: 3, options: ["A global Wi-Fi standard", "A network for space communication", "The World Wide Web", "A network strictly for internal members"] },
+        { q: "Benefit of internet in education:", a: 0, options: ["Access to e-learning and digital libraries", "Elimination of teacher roles", "Automated grade passing", "Reduced need for critical thinking"] },
+        { q: "What is a common security risk on the internet?", a: 3, options: ["Over-hydration", "Rapid hardware aging", "Loss of physical strength", "Identity Theft"] },
+        { q: "What is the primary purpose of a Firewall?", a: 2, options: ["Cooling the server room", "Speeding up printing", "Preventing unauthorized access to a network", "Providing physical fire safety"] },
+        { q: "How can you protect against email viruses?", a: 0, options: ["Using antivirus and link caution", "Clicking all links for verification", "Replying to all spam emails", "Shutting down the computer daily"] },
+        { q: "Digital libraries primarily impact which field?", a: 2, options: ["Industrial Manufacturing", "Large-scale Agriculture", "Education and Research", "Civil Construction"] },
+        { q: "E-learning is best defined as:", a: 0, options: ["Learning via electronic media and internet", "Building computer hardware", "Mailing textbooks", "Repairing digital monitors"] },
+        { q: "Who is an 'authorized outsider' for an Extranet?", a: 0, options: ["A business partner or trusted supplier", "A random anonymous browser", "A corporate competitor", "An internal employee only"] },
+        { q: "Which hardware allows multiple office devices to share internet?", a: 2, options: ["Scanner", "Webcam", "Router", "Plotter"] },
+        { q: "What is the difference between Multitasking and Multiprogramming?", a: 1, options: ["Hardware vs Software separation", "Switching between tasks vs multiple tasks in memory", "They are synonyms", "CPU cooling speed"] },
+        { q: "Software used by hospitals for real-time vitals:", a: 3, options: ["Database Software", "Scheduling Software", "Spreadsheet Software", "Monitoring Software"] },
+        { q: "Tool for remote international collaboration:", a: 2, options: ["Ocean freight shipping", "Daily international flights", "Zoom and Shared Cloud Documents", "Simplex radio"] },
+        { q: "What is the primary use of an LMS?", a: 2, options: ["Hardware screen repair", "Social media browsing", "Organizing assignments and communication", "Electrical speed optimization"] }
+    ];
+
+    let currentIdx = 0;
+    let score = 0;
+
+    function loadQuestion() {
+        const q = quizData[currentIdx];
+        document.getElementById('progress-text').innerText = `ASSESSMENT ITEM: ${currentIdx + 1} OF 45`;
+        document.getElementById('question-text').innerText = q.q;
+        document.getElementById('next-btn').style.display = 'none';
+        
+        const list = document.getElementById('options-list');
+        list.innerHTML = '';
+
+        q.options.forEach((opt, i) => {
+            const btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(i, btn);
+            list.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, btn) {
+        const q = quizData[currentIdx];
+        const buttons = document.querySelectorAll('.opt-btn');
+        buttons.forEach(b => b.disabled = true);
+
+        if (selected === q.a) {
+            score++;
+            btn.classList.add('correct');
+        } else {
+            btn.classList.add('wrong');
+            buttons[q.a].classList.add('correct');
+        }
+
+        document.getElementById('score-text').innerText = `Score: ${score}`;
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        if (currentIdx < quizData.length) {
+            loadQuestion();
+        } else {
+            showFinal();
+        }
+    }
+
+    function showFinal() {
+        const percentage = Math.round((score / 45) * 100);
+        document.getElementById('game-container').innerHTML = `
+            <div class="card" style="text-align: center;">
+                <h2 style="color:var(--primary)">ASSESSMENT COMPLETE</h2>
+                <div style="font-size: 3em; font-weight: 700; margin: 20px 0;">${score} / 45</div>
+                <div style="font-size: 1.2em; color: var(--text-secondary); margin-bottom: 30px;">
+                    Overall Mastery: ${percentage}%
+                </div>
+                <button onclick="location.reload()" style="background:var(--primary); color:white; border:none; padding:15px 40px; border-radius:4px; cursor:pointer; font-weight:600;">RETAKE ASSESSMENT</button>
+            </div>
+        `;
+    }
+
+    window.onload = loadQuestion;
+</script>
+
+</body>
+</html>
